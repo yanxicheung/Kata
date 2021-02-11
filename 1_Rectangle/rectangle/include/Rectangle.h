@@ -1,0 +1,16 @@
+#ifndef HFE81C6DD_FADF_4211_A26A_BFE859638926
+#define HFE81C6DD_FADF_4211_A26A_BFE859638926
+
+struct Rectangle
+{
+    Rectangle(double width, double height);
+    double area() const;
+    double perimeter() const;
+    double getWidth() const;
+    double getHeight() const;
+ private:
+    double m_width;
+    double m_height;
+};
+
+#endif /* HFE81C6DD_FADF_4211_A26A_BFE859638926 */
