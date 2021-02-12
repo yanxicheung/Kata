@@ -28,6 +28,15 @@ FIXTURE(RectangleTest)
         Rectangle rec2(5.234 , 1.72);
         ASSERT_THAT(rec2.getWidth(), eq(5.23));
         ASSERT_THAT(rec2.getHeight(), eq(1.72));
-        ASSERT_THAT(rec2.area(), eq(9.00));  // 8.9956
+        ASSERT_THAT(rec2.area(), eq(9.00));
+    }
+
+    TEST("should calc rectangle width & height range succ")
+    {
+        Rectangle rec(100 , 75);
+        ASSERT_THAT(rec.getWidth(), eq(100));
+        ASSERT_THAT(rec.getHeight(), eq(0));
+        ASSERT_THAT(rec.area(), eq(0));
+        ASSERT_THAT(rec.perimeter(), eq(0));
     }
 };

@@ -6,8 +6,14 @@ struct Rectangle
     Rectangle(double width, double height);
     double area() const;
     double perimeter() const;
-    double getWidth() const;
-    double getHeight() const;
+    inline double getWidth() const
+    {
+        return m_width;
+    }
+    inline double getHeight() const
+    {
+        return m_height;
+    }
  private:
     double m_width;
     double m_height;
