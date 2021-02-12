@@ -205,6 +205,158 @@ double Rectangle::area() const
 
 (2)非法的矩形的面积和周长为0;
 
+按照需求设计出测试用例：
+
+```c++
+TEST("should calc rectangle width & height range succ")
+{
+    Rectangle rec(100 , 75);
+    ASSERT_THAT(rec.getWidth(), eq(100));
+    ASSERT_THAT(rec.getHeight(), eq(0));
+    ASSERT_THAT(rec.area(), eq(0));
+    ASSERT_THAT(rec.perimeter(), eq(0));
+}
+```
+
+按照需求快速实现：
+
+```c++
+namespace
+{
+    const double MIN_WIDTH = 0;
+    const double MAX_WIDTH = 100;
+    const double MIN_HEIGHT = 0;
+    const double MAX_HEIGHT = 75;
+}
+
+Rectangle::Rectangle(double width, double height)
+{
+    double m_width_result = processPrecision(width, 2, 0);
+    if(m_width_result > MIN_WIDTH and m_width_result <= MAX_WIDTH) m_width = m_width_result;
+    else m_width = 0;
+
+    double m_height_result = processPrecision(height, 2, 0);
+    if(m_height_result > MIN_HEIGHT and m_height_result < MAX_HEIGHT) m_height = m_height_result;
+    else m_height = 0;
+}
+
+double Rectangle::area() const
+{
+    return processPrecision(getHeight() * getWidth(), 2, 0.5);
+}
+
+double Rectangle::perimeter() const
+{
+    if(getHeight() == 0 or getWidth() == 0)
+        return 0;
+    return 2 * (getHeight() + getWidth());
+}
+```
+
+
+
+## Refactor：去除重复
+
+从上述代码中可以看出，计算长方形长、宽的逻辑基本一致：
+
+如果长（宽）在取值范围内，那么则取对应的值为最终结果，否在最终结果为0。
+
+唯一存在差异的地方是长方形的长、宽对合法取值范围的定义是不一样的。
+
+我们这里可以提取出一个**inRange**的概念，这是个相对稳定的概念，而**getResult**依赖于这个稳定的概念，这样下来代码是稳定的。`Width`和`Height`对于**inRange**这个概念的实现都有自己的定义。
+
+```c++
+namespace
+{
+    struct Width
+    {
+        Width(double value):value(value){}
+        bool inRange() const
+        {
+            return value > MIN_WIDTH and value <= MAX_WIDTH;
+        }
+    private:
+        double value;
+    };
+
+    struct Height
+    {
+        Height(double value):value(value){}
+        bool inRange() const
+        {
+            return value > MIN_HEIGHT and value < MAX_HEIGHT;
+        }
+     private:
+         double value;
+     };
+
+    template<typename Value>
+    double getResult(double value)
+    {
+        // 对Value类的接口存在隐式约束：必须实现inRange，否在编译失败。
+        return Value(value).inRange() ? processPrecision(value, 2, 0): 0;
+    }
+}
+
+Rectangle::Rectangle(double width, double height)
+{
+    m_width = getResult<Width>(width);
+    m_height = getResult<Height>(height);
+}
+```
+
+## Refactor：分离精度算法
+
+精度算法是比较常用的，如果将其分离出去，能够提高函数的可重用性：
+
+```c++
+//util.h
+#ifndef H44DCD35C_F5D5_4801_8E16_AF7DB6641C5A
+#define H44DCD35C_F5D5_4801_8E16_AF7DB6641C5A
+
+double floor(double value, const unsigned int precision);
+double round(double value, const unsigned int precison);
+
+#endif /* H44DCD35C_F5D5_4801_8E16_AF7DB6641C5A */
+
+//util.cpp
+#include <cmath>
+#include "util.h"
+namespace
+{
+    double processPrecision(double value, const unsigned int precision, double compensation)
+    {
+        double factor = ::pow(10, precision);
+        return ::floor(value * factor + compensation)/factor;
+    }
+}
+
+double floor(double value, const unsigned int precision)
+{
+    return processPrecision(value, precision, 0);
+}
+
+double round(double value, const unsigned int precision)
+{
+    return processPrecision(value, precision, 0.5);
+}
+// Rectangle.cpp 对应调用的地方修改为：
+template<typename Value>
+double getResult(double value)
+{
+    return Value(value).inRange() ? floor(value, 2): 0;
+}
+
+double Rectangle::area() const
+{
+    return round(getHeight() * getWidth(), 2);
+}
+```
+
+这里除了对精度算法进行了分离，还对`processPrecision(value, precision, 0)`及`processPrecision(value, precision, 0.5)`进行了封装，这样做的好处有：
+1. `floor`和`round`较好地表达了向下取整、四舍五入的语义。
+2. 降低客户端调用的心智包袱。
+
 
 
 ## sprint4:
