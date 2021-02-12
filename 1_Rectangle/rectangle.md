@@ -127,6 +127,78 @@ double Rectangle::area() const
 
 
 
+## refactor：
+
+首先魔鬼数字100并没有体现出精确到小数点后**两位**这一知识。在这里我们需要将**精度**这一知识显性化。
+
+```C++
+Rectangle::Rectangle(double width, double height)
+{
+    const unsigned int PRECISION = 2;
+    double factor = pow(10, PRECISION);
+    m_width = (unsigned int)(width * factor)/factor;
+    m_height = (unsigned int)(height * factor)/factor;
+}
+
+double Rectangle::area() const
+{
+    const unsigned int PRECISION = 2;
+    double factor = pow(10, PRECISION);
+    return (unsigned int)((m_height * m_width)*factor + 0.5)/factor;
+}
+```
+
+在sprint2中提及到：
+
+长和宽的精度保持为0.01,且不按照四舍五入，例如1.236 => 1.23。
+
+这其实就是**向下取整**，当前实现中使用了强制类型转换来达到同样的效果，但是没有直接体现出**向下取整**这一知识。在这里我们直接使用库函数floor来以明确：
+
+```c++
+Rectangle::Rectangle(double width, double height)
+{
+    const unsigned int PRECISION = 2;
+    double factor = pow(10, PRECISION);
+    m_width = floor(width * factor)/factor;
+    m_height = floor(height * factor)/factor;
+}
+
+double Rectangle::area() const
+{
+    const unsigned int PRECISION = 2;
+    double factor = pow(10, PRECISION);
+    return floor((m_height * m_width)*factor + 0.5)/factor;
+}
+```
+
+现在代码比之前的清楚多了，但是仍然存在重复，接下来我们消除重复的代码：
+
+```c++
+
+namespace
+{
+    double processPrecision(double value, const unsigned int precision, double compensation)
+    {
+        double factor = pow(10, precision);
+        return floor(value * factor + compensation)/factor;
+    }
+}
+
+
+Rectangle::Rectangle(double width, double height)
+{
+    m_width = processPrecision(width, 2, 0);
+    m_height = processPrecision(height, 2, 0);
+}
+
+double Rectangle::area() const
+{
+    return processPrecision(m_height * m_width, 2, 0.5);
+}
+```
+
+
+
 ## sprint3:
 
 (1)宽的取值范围为(0,100],高的取值范围为(0,75)。当值不在这个范围内，则认为矩形非法;

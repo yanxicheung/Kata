@@ -1,14 +1,25 @@
 #include "Rectangle.h"
+#include <cmath>
+
+namespace
+{
+    double processPrecision(double value, const unsigned int precision, double compensation)
+    {
+        double factor = pow(10, precision);
+        return floor(value * factor + compensation)/factor;
+    }
+}
+
 
 Rectangle::Rectangle(double width, double height)
 {
-    m_width = (unsigned int)(width * 100)/100.0;
-    m_height = (unsigned int)(height * 100)/100.0;
+    m_width = processPrecision(width, 2, 0);
+    m_height = processPrecision(height, 2, 0);
 }
 
 double Rectangle::area() const
 {
-    return (unsigned int)((m_height * m_width)*100 + 0.5)/100.0;
+    return processPrecision(m_height * m_width, 2, 0.5);
 }
 
 double Rectangle::perimeter() const
