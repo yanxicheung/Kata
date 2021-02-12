@@ -1,6 +1,5 @@
 #include "Rectangle.h"
-#include <cmath>
-
+#include "util.h"
 namespace
 {
     const double MIN_WIDTH = 0;
@@ -8,27 +7,44 @@ namespace
     const double MIN_HEIGHT = 0;
     const double MAX_HEIGHT = 75;
 
-    double processPrecision(double value, const unsigned int precision, double compensation)
+    struct Width
     {
-        double factor = pow(10, precision);
-        return floor(value * factor + compensation)/factor;
+        Width(double value):value(value){}
+        bool inRange() const
+        {
+            return value > MIN_WIDTH and value <= MAX_WIDTH;
+        }
+    private:
+        double value;
+    };
+
+    struct Height
+    {
+        Height(double value):value(value){}
+        bool inRange() const
+        {
+            return value > MIN_HEIGHT and value < MAX_HEIGHT;
+        }
+     private:
+         double value;
+     };
+
+    template<typename Value>
+    double getResult(double value)
+    {
+        return Value(value).inRange() ? floor(value, 2): 0;
     }
 }
 
 Rectangle::Rectangle(double width, double height)
 {
-    double m_width_result = processPrecision(width, 2, 0);
-    if(m_width_result > MIN_WIDTH and m_width_result <= MAX_WIDTH) m_width = m_width_result;
-    else m_width = 0;
-
-    double m_height_result = processPrecision(height, 2, 0);
-    if(m_height_result > MIN_HEIGHT and m_height_result < MAX_HEIGHT) m_height = m_height_result;
-    else m_height = 0;
+    m_width = getResult<Width>(width);
+    m_height = getResult<Height>(height);
 }
 
 double Rectangle::area() const
 {
-    return processPrecision(getHeight() * getWidth(), 2, 0.5);
+    return round(getHeight() * getWidth(), 2);
 }
 
 double Rectangle::perimeter() const
