@@ -35,7 +35,7 @@ FIXTURE(RectangleTest)
     {
         Rectangle rec(100 , 75);
         ASSERT_THAT(rec.getWidth(), eq(100));
-        ASSERT_THAT(rec.getHeight(), eq(0));
+        ASSERT_THAT(rec.getHeight(), eq(75));
         ASSERT_THAT(rec.area(), eq(0));
         ASSERT_THAT(rec.perimeter(), eq(0));
     }

@@ -10,7 +10,7 @@ namespace
     struct Width
     {
         Width(double value):value(value){}
-        bool inRange() const
+        bool isVaild() const
         {
             return value > MIN_WIDTH and value <= MAX_WIDTH;
         }
@@ -21,35 +21,33 @@ namespace
     struct Height
     {
         Height(double value):value(value){}
-        bool inRange() const
+        bool isVaild() const
         {
             return value > MIN_HEIGHT and value < MAX_HEIGHT;
         }
      private:
          double value;
      };
-
-    template<typename Value>
-    double getResult(double value)
-    {
-        return Value(value).inRange() ? floor(value, 2): 0;
-    }
 }
 
-Rectangle::Rectangle(double width, double height)
-{
-    m_width = getResult<Width>(width);
-    m_height = getResult<Height>(height);
-}
+Rectangle::Rectangle(double width, double height):
+m_width(floor(width, 2)),m_height(floor(height, 2)){}
 
 double Rectangle::area() const
 {
+    if(not isVaild())
+        return 0;
     return round(getHeight() * getWidth(), 2);
 }
 
 double Rectangle::perimeter() const
 {
-    if(getHeight() == 0 or getWidth() == 0)
+    if(not isVaild())
         return 0;
     return 2 * (getHeight() + getWidth());
+}
+
+bool Rectangle::isVaild() const
+{
+    return Width(m_width).isVaild() and Height(m_height).isVaild();
 }

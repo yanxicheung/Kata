@@ -14,6 +14,8 @@ struct Rectangle
     {
         return m_height;
     }
+private:
+    bool isVaild() const ;
  private:
     double m_width;
     double m_height;
