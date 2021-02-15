@@ -306,63 +306,6 @@ Rectangle::Rectangle(double width, double height)
 }
 ```
 
-
-
-## 杜绝潜规则：
-
-在上节，我们将非法的长度、宽度的值设置为0，需求里也没有具体提及到可以这样处理。所以我们不应该投机取巧(不要将非法长度设为0)，把偶然当必然(非本质的关系不稳定)。我们做如下修改：
-
-```c++
-namespace
-{
-    struct Width
-    {
-        Width(double value):value(value){}
-        bool isVaild() const
-        {
-            return value > MIN_WIDTH and value <= MAX_WIDTH;
-        }
-    private:
-        double value;
-    };
-
-    struct Height
-    {
-        Height(double value):value(value){}
-        bool isVaild() const
-        {
-            return value > MIN_HEIGHT and value < MAX_HEIGHT;
-        }
-     private:
-         double value;
-     };
-}
-
-Rectangle::Rectangle(double width, double height):
-m_width(floor(width, 2)),m_height(floor(height, 2)){}
-
-double Rectangle::area() const
-{
-    if(not isVaild())
-        return 0;
-    return round(getHeight() * getWidth(), 2);
-}
-
-double Rectangle::perimeter() const
-{
-    if(not isVaild())
-        return 0;
-    return 2 * (getHeight() + getWidth());
-}
-
-bool Rectangle::isVaild() const
-{
-    return Width(m_width).isVaild() and Height(m_height).isVaild();
-}
-```
-
-
-
 ## refactor：分离精度算法
 
 精度算法是比较常用的，如果将其分离出去，能够提高函数的可重用性：
@@ -416,7 +359,58 @@ double Rectangle::area() const
 
 2. 降低客户端调用的心智包袱。
 
-   
+## 杜绝潜规则：
+
+在上节，我们将非法的长度、宽度的值设置为0，需求里也没有具体提及到可以这样处理。所以我们不应该投机取巧(不要将非法长度设为0)，把偶然当必然(非本质的关系不稳定)。我们做如下修改：
+
+```c++
+namespace
+{
+    struct Width
+    {
+        Width(double value):value(value){}
+        bool isVaild() const
+        {
+            return value > MIN_WIDTH and value <= MAX_WIDTH;
+        }
+    private:
+        double value;
+    };
+
+    struct Height
+    {
+        Height(double value):value(value){}
+        bool isVaild() const
+        {
+            return value > MIN_HEIGHT and value < MAX_HEIGHT;
+        }
+     private:
+         double value;
+     };
+}
+
+Rectangle::Rectangle(double width, double height):
+m_width(floor(width, 2)),m_height(floor(height, 2)){}
+
+double Rectangle::area() const
+{
+    if(not isVaild())
+        return 0;
+    return round(getHeight() * getWidth(), 2);
+}
+
+double Rectangle::perimeter() const
+{
+    if(not isVaild())
+        return 0;
+    return 2 * (getHeight() + getWidth());
+}
+
+bool Rectangle::isVaild() const
+{
+    return Width(m_width).isVaild() and Height(m_height).isVaild();
+}
+```
 
 # 总结：
 至此，第一个Code Kata结束了，我们回顾下我们解题的**姿势**：

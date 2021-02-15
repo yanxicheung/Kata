@@ -9,7 +9,7 @@
 1. Rectangle：袁英杰 OO Boot Camp Explained
 2. Unit：袁英杰 OO Boot Camp Explained
 3. FizzBuzz：熊节 TDD训练营
-4. RobotCleaner：刘光聪 gitlab： https://gitlab.com/horance/robot-cleaner
+4. RobotCleaner：[刘光聪]( https://github.com/horance-liu/robot-cleaner)
 5. Args：熊节 TDD训练营
 6. MarsRover：熊节 TDD训练营
 
