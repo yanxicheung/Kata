@@ -13,3 +13,5 @@
 5. Args：熊节 TDD训练营
 6. MarsRover：熊节 TDD训练营
 
+更多的题目：http://codingdojo.org/kata/
+
